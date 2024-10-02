@@ -6,3 +6,18 @@ export const MONGODB_SECRET = {
 export const SERVER_CREDS = {
     PORT_NUMBER : process.env.PORT_NUMBER || 8080
 }
+
+export const ROLES = {
+    SUPERADMIN : 'superAdmin',
+    ADMIN : 'Admin',
+    User : 'User',
+}
+
+export const DEFAULTUSERS = {
+    SUPERADMIN : process.env.DEFAULT_SUPER_ADMIN, 
+    ADMIN : process.env.DEFAULT_ADMIN, 
+}
+
+export const HASH_SECRETS = {
+    SALT_ROUNDS : Number(process.env.SALT_ROUNDS),
+}
