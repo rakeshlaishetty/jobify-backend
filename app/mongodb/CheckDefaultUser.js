@@ -1,25 +1,38 @@
 const { ROLES, DEFAULTUSERS } = require("../../config/Constants");
-const User = require("../../app/user/schema");
+const User = require("../../app/user/schemas/schema");
+const Role = require("../../app/user/schemas/RoleSchema");
 const { hashPassword } = require("../../utils/bcrypt");
 
 const checkAndCreateUsers = async () => {
+    const rolePromises = Object.keys(ROLES).map(async (roleName) => {
+        let role = await Role.findOne({ name: ROLES[roleName] });
+        if (!role) {
+            console.log(`${ROLES[roleName]} role not found. Creating role...`);
+            role = new Role({ name: ROLES[roleName] });
+            await role.save();
+            console.log(`${ROLES[roleName]} role created successfully.`);
+        } else {
+            console.log(`${ROLES[roleName]} role already exists.`);
+        }
+        return role._id;
+    });
+
+    const roleIds = await Promise.all(rolePromises);
+
     const usersToCheck = [
-        { email: DEFAULTUSERS.SUPERADMIN, role: ROLES.SUPERADMIN },
-        { email: DEFAULTUSERS.ADMIN, role: ROLES.ADMIN }
+        { email: DEFAULTUSERS.SUPERADMIN, role: roleIds[0] },
+        { email: DEFAULTUSERS.ADMIN, role: roleIds[1] }
     ];
 
     for (const userData of usersToCheck) {
-        // Check if user exists
         let user = await User.findOne({ email: userData.email });
         if (!user) {
             console.log(`${userData.email} not found. Creating user...`);
 
-            // Hash password using the utility function
             const encryptedPassword = await hashPassword(userData.email);
 
-            // Create user
             user = new User({
-                name: userData.email.split('@')[0],  // Using the email prefix as name
+                name: userData.email.split('@')[0],
                 email: userData.email,
                 password: encryptedPassword,
                 role: userData.role
