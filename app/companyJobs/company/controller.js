@@ -1,6 +1,7 @@
 const checkRequiredFields = require("../../../utils/CheckRequiredFields");
 const { sendErrorResponse, sendSuccessResponse } = require("../../../utils/response");
 const Company = require("./schema");
+const Job = require("../jobs/schema")
 
 const addcompany = async (req, res) => {
     try {
@@ -45,6 +46,7 @@ const deletecompany = async (req, res) => {
         if (!deletedCompany) {
             return sendErrorResponse(res, "Company not found", 404);
         }
+        const deletedJobs = await Job.deleteMany({ company: id });
 
         sendSuccessResponse(res, "Company deleted successfully", deletedCompany);
     } catch (error) {
