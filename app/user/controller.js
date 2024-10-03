@@ -38,17 +38,59 @@ const AddUserAdmin = async (req, res) => {
 }
 
 
-const signup = async (req, res) => {
+const updateUser = async (req, res) => {
+    try {
+        const { email, name, password, id } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+        if (!id) {
+            return sendErrorResponse(res, "Please provide user ID", 400);
+        }
 
-    const newUser = new User({
-        email,
-        password: hashedPassword,
-        name,
-    });
+        let user = await User.findById(id);
+        if (!user) {
+            return sendErrorResponse(res, "User not found", 404);
+        }
 
-    return await newUser.save();
+        if (email && email !== user.email) {
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+                return sendErrorResponse(res, "Email already exists", 400);
+            }
+            user.email = email;
+        }
+
+        if (name) user.name = name;
+        if (password) {
+            user.password = await hashPassword(password);
+        }
+
+        await user.save();
+        const updatedUser = user.toObject();
+        delete updatedUser.password;
+
+        sendSuccessResponse(res, "User updated successfully", updatedUser);
+    } catch (error) {
+        sendErrorResponse(res, error?.message || "Error updating user", 500);
+    }
 };
 
-module.exports = { AddUserAdmin }
+
+
+const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.body;
+
+        const user = await User.findById(id);
+        if (!user) {
+            return sendErrorResponse(res, "User not found", 404);
+        }
+
+        await user.deleteOne({ _id: id });
+        sendSuccessResponse(res, "User deleted successfully");
+    } catch (error) {
+        sendErrorResponse(res, error?.message || "Error deleting user", 500);
+    }
+};
+
+
+module.exports = { AddUserAdmin, updateUser, deleteUser }
