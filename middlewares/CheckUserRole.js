@@ -25,4 +25,16 @@ const isAdmin = (req, res, next) => {
         sendErrorResponse(res, (error?.message || "Super admin verifictaion Failed"), 500);
     }
 }
-module.exports = { isSuperAdmin,isAdmin }
+
+const isAdminOrSuperAdmin = (req, res, next) => {
+    const user = req.user;
+
+    if (user.role.name === ROLES.ADMIN || user.role.name === ROLES.SUPERADMIN) {
+        return next();
+    }
+
+    sendErrorResponse(res, (error?.message || "Access Denied"), 500);
+};
+
+
+module.exports = { isSuperAdmin, isAdmin, isAdminOrSuperAdmin }
