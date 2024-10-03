@@ -1,5 +1,5 @@
 const router = require("express").Router()
-const { listcompany, addcompany, deletecompany, updatecompany } = require("./company/controller")
+const { listcompany, addcompany, deletecompany, updatecompany } = require("./controller")
 
 router.post("/addcompany", addcompany)
 router.post("/deletecompany", deletecompany)
