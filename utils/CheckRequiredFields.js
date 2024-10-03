@@ -16,6 +16,10 @@ const checkRequiredFields = (fields) => {
         errors.push("Password must be at least 8 characters long and contain at least one number and one special character.");
     }
 
+    if (fields.phone && !validatePhone(fields.phone)) {
+        errors.push("Invalid phone number format.");
+    }
+
     if (missingFields.length > 0) {
         errors.push(`Missing required fields: ${missingFields.join(', ')}`);
     }
@@ -27,5 +31,13 @@ const validatePassword = (password) => {
     const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
     return passwordRegex.test(password);
 };
+
+const validatePhone = (phone) => {
+    // Example regex for validating phone numbers
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/; // Adjust regex based on your needs
+    return phoneRegex.test(phone);
+};
+
+
 
 module.exports = checkRequiredFields;

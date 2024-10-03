@@ -93,4 +93,60 @@ const deleteUser = async (req, res) => {
 };
 
 
-module.exports = { AddUserAdmin, updateUser, deleteUser }
+
+const listUsers = async (req, res) => {
+    try {
+
+        const { page = 1, limit = 10, sortBy = 'createdAt', order = 'asc' } = req.query;
+        const { email, name, role, startDate, endDate } = req.query;
+
+        const pageNumber = parseInt(page);
+        const limitNumber = parseInt(limit);
+
+        const filterOptions = {};
+
+        if (email) {
+            filterOptions.email = { $regex: email, $options: 'i' };
+        }
+        if (name) {
+            filterOptions.name = { $regex: name, $options: 'i' };
+        }
+        if (role) {
+            filterOptions.role = role;
+        }
+        if (startDate || endDate) {
+            filterOptions.createdAt = {};
+            if (startDate) {
+                filterOptions.createdAt.$gte = new Date(startDate);
+            }
+            if (endDate) {
+                filterOptions.createdAt.$lte = new Date(endDate);
+            }
+        }
+
+
+        const sortOptions = {};
+        sortOptions[sortBy] = order === 'asc' ? 1 : -1;
+
+        const users = await User.find(filterOptions)
+            .sort(sortOptions)
+            .skip((pageNumber - 1) * limitNumber)
+            .limit(limitNumber);
+
+        const totalUsers = await User.countDocuments(filterOptions);
+
+        const response = {
+            users,
+            totalUsers,
+            currentPage: pageNumber,
+            totalPages: Math.ceil(totalUsers / limitNumber)
+        };
+
+        sendSuccessResponse(res, "Users retrieved successfully", response);
+    } catch (error) {
+        sendErrorResponse(res, error?.message || "Error retrieving users", 500);
+    }
+};
+
+
+module.exports = { AddUserAdmin, updateUser, deleteUser, listUsers }
