@@ -5,6 +5,8 @@ const helmet = require('helmet');
 const morgan = require('morgan'); 
 const { SERVER_CREDS } = require('./config/Constants');
 const connectDB = require('./app/mongodb/connection');
+const errorHandler = require('./middlewares/errorHandler');
+const configureRoutes = require('./app/route');
 
 connectDB()
 
@@ -17,10 +19,8 @@ app.use(morgan('combined'));
 // Get the port from server credentials
 const PORT = SERVER_CREDS.PORT_NUMBER || 5000;
 
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send({ message: 'Something went wrong!' });
-});
+configureRoutes(app)
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

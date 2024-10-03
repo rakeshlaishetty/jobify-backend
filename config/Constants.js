@@ -4,7 +4,8 @@ export const MONGODB_SECRET = {
 }
 
 export const SERVER_CREDS = {
-    PORT_NUMBER : process.env.PORT_NUMBER || 8080
+    PORT_NUMBER : process.env.PORT_NUMBER || 8080,
+    JWT_SECRET : process.env.JWT_SECRET,
 }
 
 export const ROLES = {
