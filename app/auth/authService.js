@@ -36,16 +36,14 @@ const loginUser = async (req, res) => {
         }
 
         const token = generateToken(user);
+        const userdata = user.toObject();
+        delete userdata.password;
         sendSuccessResponse(res, "Login successful", {
-            user: {
-                id: user._id,
-                email: user.email,
-                name: user.name,
-            },
+            user: userdata,
             token,
         });
     } catch (error) {
-        sendErrorResponse(res, "Error logging in", 500);
+        sendErrorResponse(res, (error?.message || "Error logging in"), 500);
     }
 };
 
